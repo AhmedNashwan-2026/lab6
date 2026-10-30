@@ -1,0 +1,72 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Display Book</title>
+</head>
+<body>
+    <h1>Book Records</h1>
+
+    <label for="bookSelect">Select a book title:</label>
+    <select id="bookSelect">
+        <option value="">-- Select a book --</option>
+    </select>
+
+    <div id="bookDetails"></div>
+    <p id="message"></p>
+
+    <script>
+        // TODO: replace YOUR-USERNAME and YOUR-REPO with your GitHub details
+        const url = "https://raw.githubusercontent.com/YOUR-USERNAME/YOUR-REPO/main/books.json";
+
+        const select = document.getElementById("bookSelect");
+        const details = document.getElementById("bookDetails");
+        const message = document.getElementById("message");
+        let books = [];
+
+        // Fetch the JSON data (fetch lifecycle: request -> check response.ok -> parse -> render)
+        async function loadBooks() {
+            try {
+                const response = await fetch(url);
+                if (!response.ok)
+                    throw new Error(`HTTP ${response.status}`);
+                const data = await response.json();
+                books = data.Books;
+
+                // Fill the select element with the book titles
+                for (let i = 0; i < books.length; i++) {
+                    const option = document.createElement("option");
+                    option.value = books[i].title;
+                    option.textContent = books[i].title;
+                    select.appendChild(option);
+                }
+            } catch (error) {
+                message.textContent = "Failed to load books: " + error.message;
+            }
+        }
+
+        // Display the selected book (textContent is used instead of innerHTML to render safely)
+        function showBook() {
+            details.textContent = "";
+            const book = books.find(b => b.title === select.value);
+            if (!book) return;
+
+            const lines = [
+                "Title: " + book.title,
+                "Author: " + book.author,
+                "Publication Year: " + book.publicationYear,
+                "Genre: " + book.genres.join(", ")
+            ];
+            for (let i = 0; i < lines.length; i++) {
+                const p = document.createElement("p");
+                p.textContent = lines[i];
+                details.appendChild(p);
+            }
+        }
+
+        select.addEventListener("change", showBook);
+        loadBooks();
+    </script>
+</body>
+</html>
